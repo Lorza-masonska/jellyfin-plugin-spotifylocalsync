@@ -10,12 +10,11 @@ namespace Jellyfin.Plugin.SpotifyLocalSync;
 
 /// <summary>
 /// SpotifyLocalSync plugin entry point.
-/// Registered automatically by Jellyfin's plugin loader.
 /// </summary>
 public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
 {
     /// <summary>
-    /// Singleton instance – convenient for services that cannot use DI easily.
+    /// Singleton instance.
     /// </summary>
     public static Plugin? Instance { get; private set; }
 
@@ -41,13 +40,20 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     /// <inheritdoc />
     public IEnumerable<PluginPageInfo> GetPages()
     {
-        // The embedded HTML resource name must match the EmbeddedResource path in the .csproj
-        // with dots replacing path separators: "Jellyfin.Plugin.SpotifyLocalSync.Web.configurationpage.html"
-        yield return new PluginPageInfo
+        var ns = GetType().Namespace;
+        return new[]
         {
-            Name            = "SpotifyLocalSync",
-            EmbeddedResourcePath = $"{GetType().Namespace}.Web.configurationpage.html",
-            EnableInMainMenu = false
+            new PluginPageInfo
+            {
+                Name            = "SpotifyLocalSync",
+                EmbeddedResourcePath = $"{ns}.Web.configurationpage.html",
+                EnableInMainMenu = false
+            },
+            new PluginPageInfo
+            {
+                Name = "spotifylocalsyncjs",
+                EmbeddedResourcePath = $"{ns}.Web.configurationpage.js"
+            }
         };
     }
 }

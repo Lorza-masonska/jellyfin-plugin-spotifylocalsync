@@ -1,367 +1,98 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-    <title>SpotifyLocalSync – Konfiguracja</title>
+    <meta charset="utf-8">
+    <title>SpotifyLocalSync</title>
 </head>
 <body>
 
 <div id="SpotifyLocalSyncConfigPage" data-role="page" class="page type-interior pluginConfigurationPage"
-     data-require="emby-input,emby-button,emby-select,emby-checkbox,emby-textarea">
+     data-require="emby-input,emby-button,emby-select,emby-checkbox,emby-textarea"
+     data-pluginuniqueid="4a7b2c3d-1e5f-4a8b-9c0d-2e3f4a5b6c7d"
+     data-controller="__plugin/spotifylocalsyncjs">
 
     <div data-role="content">
         <div class="content-primary">
 
-            <!-- ═══════════════════════════════════════════════════ -->
-            <!--  PAGE HEADER                                        -->
-            <!-- ═══════════════════════════════════════════════════ -->
-            <div class="verticalSection">
-                <h2 class="sectionTitle">
-                    🎵 SpotifyLocalSync
-                </h2>
-                <p class="fieldDescription">
-                    Synchronizuje publiczne playlisty Spotify z lokalną biblioteką muzyczną Jellyfin
-                    przy użyciu algorytmu dopasowania rozmytego (fuzzy matching).
-                </p>
-            </div>
+            <form id="SpotifyLocalSyncForm">
 
-            <!-- ═══════════════════════════════════════════════════ -->
-            <!--  SPOTIFY CREDENTIALS                                -->
-            <!-- ═══════════════════════════════════════════════════ -->
-            <div class="verticalSection verticalSection-extrabottompadding">
                 <div class="sectionTitleContainer flex align-items-center">
-                    <h2 class="sectionTitle">Poświadczenia Spotify API</h2>
+                    <h2 class="sectionTitle">🎵 SpotifyLocalSync</h2>
+                </div>
+                <div class="verticalSection">
+                    <p class="fieldDescription">Synchronizuje publiczne playlisty Spotify z lokalną biblioteką muzyczną Jellyfin.</p>
                 </div>
 
-                <p class="fieldDescription">
-                    Utwórz aplikację na
-                    <a href="https://developer.spotify.com/dashboard" target="_blank" rel="noopener">
-                        developer.spotify.com/dashboard
-                    </a>
-                    i skopiuj Client ID oraz Client Secret.
-                    Wtyczka używa przepływu <strong>Client Credentials</strong> – nie wymaga logowania użytkownika.
-                </p>
-
+                <div class="sectionTitleContainer flex align-items-center" style="margin-top:1.5em">
+                    <h3 class="sectionTitle">Dane Spotify</h3>
+                </div>
                 <div class="inputContainer">
-                    <label class="inputLabel inputLabelUnfocused" for="SpotifyClientId">
-                        Spotify Client ID
-                    </label>
-                    <input id="SpotifyClientId" name="SpotifyClientId"
-                           type="text" is="emby-input"
-                           placeholder="np. 1a2b3c4d5e6f7g8h9i0j…"
-                           autocomplete="off" />
+                    <input id="SpotifyClientId" type="text" is="emby-input" label="Spotify Client ID" />
+                    <div class="fieldDescription">Z <a href="https://developer.spotify.com/dashboard" target="_blank">developer.spotify.com</a> → Twoja aplikacja → Client ID.</div>
                 </div>
-
                 <div class="inputContainer">
-                    <label class="inputLabel inputLabelUnfocused" for="SpotifyClientSecret">
-                        Spotify Client Secret
-                    </label>
-                    <input id="SpotifyClientSecret" name="SpotifyClientSecret"
-                           type="password" is="emby-input"
-                           placeholder="••••••••••••••••••••••••••••••••"
-                           autocomplete="off" />
+                    <input id="SpotifyClientSecret" type="password" is="emby-input" label="Spotify Client Secret" />
                 </div>
-            </div>
-
-            <!-- ═══════════════════════════════════════════════════ -->
-            <!--  PLAYLIST URLS                                      -->
-            <!-- ═══════════════════════════════════════════════════ -->
-            <div class="verticalSection verticalSection-extrabottompadding">
-                <h2 class="sectionTitle">Playlisty Spotify</h2>
-
-                <p class="fieldDescription">
-                    Wklej adresy URL publicznych playlist Spotify – po jednym w każdej linii.<br/>
-                    Akceptowane formaty:
-                    <code>https://open.spotify.com/playlist/&lt;id&gt;</code>,
-                    <code>spotify:playlist:&lt;id&gt;</code>
-                    lub samo ID playlisty.
-                </p>
-
                 <div class="inputContainer">
-                    <label class="inputLabel inputLabelUnfocused" for="SpotifyPlaylistUrls">
-                        Adresy URL / ID playlist (jedna na linię)
-                    </label>
-                    <textarea id="SpotifyPlaylistUrls" name="SpotifyPlaylistUrls"
-                              is="emby-textarea" rows="6"
-                              placeholder="https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M&#10;https://open.spotify.com/playlist/…"></textarea>
+                    <textarea id="SpotifyPlaylistUrls" is="emby-textarea" label="URL-e playlist (jedna na linię)" style="min-height:100px"></textarea>
+                    <div class="fieldDescription">Obsługiwane formaty: https://open.spotify.com/playlist/ID, spotify:playlist:ID lub samo ID.</div>
                 </div>
-            </div>
 
-            <!-- ═══════════════════════════════════════════════════ -->
-            <!--  MATCHING OPTIONS                                   -->
-            <!-- ═══════════════════════════════════════════════════ -->
-            <div class="verticalSection verticalSection-extrabottompadding">
-                <h2 class="sectionTitle">Opcje dopasowania</h2>
-
+                <div class="sectionTitleContainer flex align-items-center" style="margin-top:1.5em">
+                    <h3 class="sectionTitle">Dopasowywanie</h3>
+                </div>
                 <div class="inputContainer">
-                    <label class="inputLabel inputLabelUnfocused" for="MinMatchScore">
-                        Minimalny wynik dopasowania (0–100)
-                    </label>
-                    <input id="MinMatchScore" name="MinMatchScore"
-                           type="number" is="emby-input"
-                           min="0" max="100" step="5" />
-                    <div class="fieldDescription">
-                        Domyślnie <strong>75</strong>.
-                        Wyższe wartości = mniej fałszywych dopasowań, ale też mniej znalezionych utworów.
-                    </div>
+                    <input id="MinMatchScore" type="number" is="emby-input" label="Minimalny wynik dopasowania (0–100)" min="0" max="100" />
                 </div>
-
-                <div class="checkboxContainer checkboxContainer-withDescription">
+                <div class="checkboxContainer">
                     <label class="emby-checkbox-label">
-                        <input id="RequireArtistMatch" name="RequireArtistMatch"
-                               type="checkbox" is="emby-checkbox" />
+                        <input id="RequireArtistMatch" type="checkbox" is="emby-checkbox" />
                         <span>Wymagaj dopasowania artysty</span>
                     </label>
-                    <div class="fieldDescription">
-                        Gdy włączone, zarówno tytuł jak i artysta muszą przekroczyć minimalny wynik.
-                        Wyłącz dla składanek lub kiedy metadane artysty są niekompletne.
-                    </div>
                 </div>
-            </div>
 
-            <!-- ═══════════════════════════════════════════════════ -->
-            <!--  PLAYLIST OPTIONS                                   -->
-            <!-- ═══════════════════════════════════════════════════ -->
-            <div class="verticalSection verticalSection-extrabottompadding">
-                <h2 class="sectionTitle">Opcje playlisty</h2>
-
+                <div class="sectionTitleContainer flex align-items-center" style="margin-top:1.5em">
+                    <h3 class="sectionTitle">Playlisty</h3>
+                </div>
                 <div class="inputContainer">
-                    <label class="inputLabel inputLabelUnfocused" for="PlaylistNamePrefix">
-                        Prefiks nazwy playlisty
-                    </label>
-                    <input id="PlaylistNamePrefix" name="PlaylistNamePrefix"
-                           type="text" is="emby-input"
-                           placeholder="[Spotify] " />
-                    <div class="fieldDescription">
-                        Dodawany przed nazwą pobraną ze Spotify, np. <em>[Spotify] Top Hits Poland</em>.
-                    </div>
+                    <input id="PlaylistNamePrefix" type="text" is="emby-input" label="Prefiks nazwy playlisty" />
                 </div>
-
                 <div class="inputContainer">
-                    <label class="inputLabel inputLabelUnfocused" for="PlaylistOwnerUserId">
-                        ID właściciela playlisty (opcjonalne)
-                    </label>
-                    <input id="PlaylistOwnerUserId" name="PlaylistOwnerUserId"
-                           type="text" is="emby-input"
-                           placeholder="Zostaw puste aby użyć pierwszego administratora" />
-                    <div class="fieldDescription">
-                        GUID użytkownika Jellyfin, który będzie właścicielem tworzonych playlist.
-                        Jeśli puste, automatycznie wybierany jest pierwszy administrator.
-                    </div>
+                    <input id="PlaylistOwnerUserId" type="text" is="emby-input" label="ID użytkownika Jellyfin (właściciel playlist)" />
+                    <div class="fieldDescription">Zostaw puste aby użyć pierwszego administratora.</div>
                 </div>
-
-                <div class="checkboxContainer checkboxContainer-withDescription">
+                <div class="checkboxContainer">
                     <label class="emby-checkbox-label">
-                        <input id="UpdateExistingPlaylist" name="UpdateExistingPlaylist"
-                               type="checkbox" is="emby-checkbox" />
+                        <input id="UpdateExistingPlaylist" type="checkbox" is="emby-checkbox" />
                         <span>Aktualizuj istniejące playlisty</span>
                     </label>
-                    <div class="fieldDescription">
-                        Gdy włączone, istniejąca playlista o tej samej nazwie zostanie zaktualizowana.
-                        Gdy wyłączone, za każdym razem tworzony jest nowy obiekt.
-                    </div>
                 </div>
-            </div>
 
-            <!-- ═══════════════════════════════════════════════════ -->
-            <!--  SCHEDULER                                          -->
-            <!-- ═══════════════════════════════════════════════════ -->
-            <div class="verticalSection verticalSection-extrabottompadding">
-                <h2 class="sectionTitle">Harmonogram automatycznej synchronizacji</h2>
-
+                <div class="sectionTitleContainer flex align-items-center" style="margin-top:1.5em">
+                    <h3 class="sectionTitle">Automatyczna synchronizacja</h3>
+                </div>
                 <div class="inputContainer">
-                    <label class="inputLabel inputLabelUnfocused" for="AutoSyncIntervalHours">
-                        Interwał synchronizacji (godziny)
-                    </label>
-                    <input id="AutoSyncIntervalHours" name="AutoSyncIntervalHours"
-                           type="number" is="emby-input"
-                           min="0" max="168" step="1" />
-                    <div class="fieldDescription">
-                        Ustaw <strong>0</strong> aby wyłączyć automatyczną synchronizację.
-                        Zadanie można zawsze uruchomić ręcznie w
-                        <em>Pulpit → Zaplanowane zadania</em>.
-                    </div>
+                    <input id="AutoSyncIntervalHours" type="number" is="emby-input" label="Interwał (godziny, 0 = ręcznie)" min="0" />
                 </div>
-            </div>
 
-            <!-- ═══════════════════════════════════════════════════ -->
-            <!--  BUTTONS                                            -->
-            <!-- ═══════════════════════════════════════════════════ -->
-            <div class="verticalSection">
-                <button id="btnSaveConfig" is="emby-button" type="button"
-                        class="raised button-submit block">
-                    <span>Zapisz ustawienia</span>
-                </button>
+                <div class="verticalSection" style="margin-top:2em">
+                    <button is="emby-button" type="submit" class="raised button-submit block emby-button">
+                        <span>Zapisz ustawienia</span>
+                    </button>
+                </div>
 
-                <button id="btnSyncNow" is="emby-button" type="button"
-                        class="raised button-secondary block" style="margin-top:0.5em">
+            </form>
+
+            <div class="verticalSection" style="margin-top:1em">
+                <button is="emby-button" type="button" id="btnSyncNow" class="raised button-secondary block">
                     <span>🔄 Synchronizuj teraz</span>
                 </button>
+                <div id="syncStatus" style="margin-top:1em; padding:0.75em; border-radius:4px; display:none;"></div>
             </div>
-
-            <!-- Status message -->
-            <div id="syncStatus" style="margin-top:1em; padding:0.75em;
-                 border-radius:4px; display:none;"></div>
 
         </div>
     </div>
 </div>
-
-<script type="text/javascript">
-
-(function () {
-    'use strict';
-
-    var pluginUniqueId = '4a7b2c3d-1e5f-4a8b-9c0d-2e3f4a5b6c7d';
-
-    // ── Helpers ────────────────────────────────────────────────────
-
-    function field(id) {
-        return document.getElementById(id);
-    }
-
-    function showStatus(message, isError) {
-        var el = document.getElementById('syncStatus');
-        el.textContent = message;
-        el.style.display    = 'block';
-        el.style.background = isError ? 'rgba(220,53,69,0.15)' : 'rgba(40,167,69,0.15)';
-        el.style.border     = '1px solid ' + (isError ? '#dc3545' : '#28a745');
-        el.style.color      = isError ? '#dc3545' : '#28a745';
-    }
-
-    function getApiKey() {
-        // ApiClient exposes the token in multiple ways depending on Jellyfin version
-        try {
-            return ApiClient.accessToken() || ApiClient._currentUser && ApiClient._currentUser.AccessToken || '';
-        } catch(e) {
-            return '';
-        }
-    }
-
-    function apiUrl(path) {
-        return ApiClient.serverAddress() + path;
-    }
-
-    function apiFetch(method, path, body) {
-        var opts = {
-            method: method,
-            headers: {
-                'X-Emby-Authorization': 'MediaBrowser Token="' + getApiKey() + '"',
-                'Content-Type': 'application/json'
-            }
-        };
-        if (body !== undefined) opts.body = JSON.stringify(body);
-        return fetch(apiUrl(path), opts).then(function(r) {
-            if (!r.ok) return r.text().then(function(t) { throw new Error(r.status + ': ' + t); });
-            var ct = r.headers.get('content-type') || '';
-            if (ct.indexOf('application/json') !== -1) return r.json();
-            return r.text();
-        });
-    }
-
-    // ── Load config ────────────────────────────────────────────────
-
-    function loadConfig() {
-        apiFetch('GET', '/Plugins/' + pluginUniqueId + '/Configuration').then(function (config) {
-            field('SpotifyClientId').value          = config.SpotifyClientId         || '';
-            field('SpotifyClientSecret').value      = config.SpotifyClientSecret     || '';
-            field('SpotifyPlaylistUrls').value      = config.SpotifyPlaylistUrls     || '';
-            field('MinMatchScore').value            = config.MinMatchScore           != null ? config.MinMatchScore : 75;
-            field('RequireArtistMatch').checked     = config.RequireArtistMatch      !== false;
-            field('PlaylistNamePrefix').value       = config.PlaylistNamePrefix      || '[Spotify] ';
-            field('PlaylistOwnerUserId').value      = config.PlaylistOwnerUserId     || '';
-            field('UpdateExistingPlaylist').checked = config.UpdateExistingPlaylist  !== false;
-            field('AutoSyncIntervalHours').value    = config.AutoSyncIntervalHours   != null ? config.AutoSyncIntervalHours : 24;
-        }).catch(function(err) {
-            showStatus('❌ Błąd wczytywania konfiguracji: ' + err.message, true);
-        });
-    }
-
-    // ── Build config object from form ─────────────────────────────
-
-    function buildConfig() {
-        return {
-            SpotifyClientId:        field('SpotifyClientId').value.trim(),
-            SpotifyClientSecret:    field('SpotifyClientSecret').value.trim(),
-            SpotifyPlaylistUrls:    field('SpotifyPlaylistUrls').value.trim(),
-            MinMatchScore:          parseInt(field('MinMatchScore').value, 10) || 75,
-            RequireArtistMatch:     field('RequireArtistMatch').checked,
-            PlaylistNamePrefix:     field('PlaylistNamePrefix').value,
-            PlaylistOwnerUserId:    field('PlaylistOwnerUserId').value.trim(),
-            UpdateExistingPlaylist: field('UpdateExistingPlaylist').checked,
-            AutoSyncIntervalHours:  parseInt(field('AutoSyncIntervalHours').value, 10) || 0
-        };
-    }
-
-    // ── Save config ────────────────────────────────────────────────
-
-    function saveConfig() {
-        showStatus('⏳ Zapisywanie…', false);
-        apiFetch('POST', '/Plugins/' + pluginUniqueId + '/Configuration', buildConfig())
-            .then(function () {
-                showStatus('✅ Ustawienia zostały zapisane.', false);
-            }).catch(function (err) {
-                showStatus('❌ Błąd zapisu: ' + err.message, true);
-            });
-    }
-
-    // ── Trigger scheduled task ─────────────────────────────────────
-
-    function syncNow() {
-        var btn = document.getElementById('btnSyncNow');
-        btn.setAttribute('disabled', 'disabled');
-        btn.querySelector('span').textContent = '⏳ Synchronizacja w toku…';
-        showStatus('⏳ Zapisywanie i uruchamianie…', false);
-
-        apiFetch('POST', '/Plugins/' + pluginUniqueId + '/Configuration', buildConfig())
-            .then(function () {
-                return apiFetch('GET', '/ScheduledTasks');
-            }).then(function (tasks) {
-                var task = tasks.find(function (t) { return t.Key === 'SpotifyLocalSync'; });
-                if (!task) throw new Error('Nie znaleziono zadania SpotifyLocalSync');
-                return apiFetch('POST', '/ScheduledTasks/Running/' + task.Id);
-            }).then(function () {
-                showStatus('✅ Zadanie uruchomione. Sprawdź Zaplanowane zadania.', false);
-                resetSyncButton();
-            }).catch(function (err) {
-                showStatus('❌ Błąd: ' + err.message, true);
-                resetSyncButton();
-            });
-    }
-
-    function resetSyncButton() {
-        var btn = document.getElementById('btnSyncNow');
-        btn.removeAttribute('disabled');
-        btn.querySelector('span').textContent = '🔄 Synchronizuj teraz';
-    }
-
-    // ── Bootstrap ─────────────────────────────────────────────────
-
-    // Event delegation - łapie kliknięcia niezależnie od tego kiedy przyciski się pojawią
-    document.addEventListener('click', function (e) {
-        var t = e.target;
-        // Jellyfin może wrapować button w span, więc szukamy closest
-        if (t.closest && t.closest('#btnSaveConfig')) { saveConfig(); return; }
-        if (t.closest && t.closest('#btnSyncNow'))   { syncNow();    return; }
-        // fallback dla starszych przeglądarek
-        if (t.id === 'btnSaveConfig' || (t.parentElement && t.parentElement.id === 'btnSaveConfig')) { saveConfig(); }
-        if (t.id === 'btnSyncNow'   || (t.parentElement && t.parentElement.id === 'btnSyncNow'))   { syncNow(); }
-    });
-
-    // Wczytaj config przy każdym pokazaniu strony
-    document.addEventListener('viewshow', function (e) {
-        if (e.target && e.target.id === 'SpotifyLocalSyncConfigPage') {
-            loadConfig();
-        }
-    });
-
-    // Wczytaj config też od razu (gdy strona jest już w DOM)
-    if (document.getElementById('SpotifyClientId')) {
-        loadConfig();
-    }
-
-}());
-
-</script>
 
 </body>
 </html>
