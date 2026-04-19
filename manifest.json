@@ -9,7 +9,16 @@
     "overview": "Match & sync public Spotify playlists to your local music library.",
     "owner": "Lorza-masonska",
     "targetAbi": "10.9.0.0",
-    "timestamp": "2026-04-19T00:00:00Z",
-    "versions": []
+    "timestamp": "2026-04-19T19:14:18Z",
+    "versions": [
+      {
+        "checksum": "4bf6a150eac887ac89fa8a0e0022e350",
+        "changelog": "Release 1.0.2",
+        "targetAbi": "10.9.0.0",
+        "sourceUrl": "https://github.com/Lorza-masonska/jellyfin-plugin-spotifylocalsync/releases/download/v1.0.2/jellyfin-plugin-spotifylocalsync_1.0.2.zip",
+        "timestamp": "2026-04-19T19:14:18Z",
+        "version": "1.0.2"
+      }
+    ]
   }
 ]
