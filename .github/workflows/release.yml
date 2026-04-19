@@ -17,10 +17,10 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '9.0.x'
 
       - name: Build
-        run: dotnet build SpotifyLocalSync.csproj -c Release -o ./build /p:NoWarn=1591
+        run: dotnet build SpotifyLocalSync.csproj -c Release -o ./build
 
       - name: Get version
         id: version
@@ -42,7 +42,7 @@ jobs:
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           SOURCE_URL="https://github.com/${{ github.repository }}/releases/download/v${VERSION}/jellyfin-plugin-spotifylocalsync_${VERSION}.zip"
 
-          python3 - <<EOF
+          python3 - <<PYEOF
           import json
           with open('manifest.json', 'r') as f:
               data = json.load(f)
@@ -60,7 +60,7 @@ jobs:
           entry['versions'].insert(0, new_version)
           with open('manifest.json', 'w') as f:
               json.dump(data, f, indent=2)
-          EOF
+          PYEOF
 
       - name: Commit updated manifest
         run: |
