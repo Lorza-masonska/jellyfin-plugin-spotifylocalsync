@@ -1,0 +1,76 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Build
+        run: dotnet build SpotifyLocalSync.csproj -c Release -o ./build
+
+      - name: Get version
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_OUTPUT
+
+      - name: Package DLL
+        run: |
+          mkdir -p ./dist
+          cp ./build/Jellyfin.Plugin.SpotifyLocalSync.dll ./dist/
+          cd ./dist
+          zip -j jellyfin-plugin-spotifylocalsync_${{ steps.version.outputs.VERSION }}.zip Jellyfin.Plugin.SpotifyLocalSync.dll
+          echo "CHECKSUM=$(md5sum jellyfin-plugin-spotifylocalsync_${{ steps.version.outputs.VERSION }}.zip | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+        id: package
+
+      - name: Update manifest.json
+        run: |
+          VERSION="${{ steps.version.outputs.VERSION }}"
+          CHECKSUM="${{ steps.package.outputs.CHECKSUM }}"
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          SOURCE_URL="https://github.com/${{ github.repository }}/releases/download/v${VERSION}/jellyfin-plugin-spotifylocalsync_${VERSION}.zip"
+
+          python3 - <<EOF
+          import json, os
+          with open('manifest.json', 'r') as f:
+              data = json.load(f)
+          entry = data[0]
+          entry['timestamp'] = os.environ.get('TIMESTAMP', '$TIMESTAMP')
+          new_version = {
+              "checksum": "$CHECKSUM",
+              "changelog": "Release $VERSION",
+              "targetAbi": "10.9.0.0",
+              "sourceUrl": "$SOURCE_URL",
+              "timestamp": "$TIMESTAMP",
+              "version": "${VERSION}.0" if len("$VERSION".split('.')) == 3 else "$VERSION"
+          }
+          # Remove duplicate versions
+          entry['versions'] = [v for v in entry.get('versions', []) if v['version'] != new_version['version']]
+          entry['versions'].insert(0, new_version)
+          with open('manifest.json', 'w') as f:
+              json.dump(data, f, indent=2)
+          EOF
+
+      - name: Commit updated manifest
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add manifest.json
+          git commit -m "chore: update manifest for ${{ github.ref_name }}" || echo "No changes"
+          git push origin HEAD:main || echo "Push skipped"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./dist/jellyfin-plugin-spotifylocalsync_${{ steps.version.outputs.VERSION }}.zip
+          generate_release_notes: true

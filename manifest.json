@@ -1,0 +1,15 @@
+[
+  {
+    "category": "Music",
+    "changelog": "Initial release.",
+    "description": "Synchronizes public Spotify playlists with your local Jellyfin music library. Tracks are matched using fuzzy string comparison of title and artist.",
+    "guid": "4a7b2c3d-1e5f-4a8b-9c0d-2e3f4a5b6c7d",
+    "imageUrl": "",
+    "name": "SpotifyLocalSync",
+    "overview": "Match & sync public Spotify playlists to your local music library.",
+    "owner": "Lorza-masonska",
+    "targetAbi": "10.9.0.0",
+    "timestamp": "2026-04-19T00:00:00Z",
+    "versions": []
+  }
+]
